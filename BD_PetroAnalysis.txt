@@ -1,0 +1,152 @@
+########################################################  
+#------------ Criação do Banco de Dados ----------------  
+########################################################  
+CREATE database PETROL;  
+use PETROL;  
+  
+########################################################  
+#------------ Criação de Tabelas ----------------  
+########################################################  
+CREATE TABLE Usuario (  
+    ID int(32) PRIMARY KEY NOT NULL AUTO_INCREMENT,  
+    Nome varchar(30) NOT NULL,  
+    CPF varchar(11) NOT NULL UNIQUE,  
+    Email varchar(50) NOT NULL
+);  
+  
+CREATE TABLE Telefone (  
+    ID int(32) PRIMARY KEY NOT NULL AUTO_INCREMENT,  
+    Telefone varchar(15) NOT NULL,
+    ID_Usuario int(32) NOT NULL
+);  
+  
+CREATE TABLE Computador (  
+    ID int(32) PRIMARY KEY NOT NULL AUTO_INCREMENT, 
+    ID_Usuario int(32) NOT NULL,   
+    Nome varchar(30) NOT NULL,  
+    Status varchar(3) NOT NULL,  
+    Senha varchar(50) NOT NULL   
+);  
+  
+CREATE TABLE Petroanalysis (  
+    ID int(32) PRIMARY KEY NOT NULL AUTO_INCREMENT,  
+    Status varchar(3) NOT NULL,    
+    Static double NOT NULL,  
+    Dynamic double NOT NULL,
+    Pressao double NOT NULL, 
+    Viscos double NOT NULL   
+);
+ 
+ 
+########################################################  
+#--------- Adicionando as chaves estrangeiras ---------  
+########################################################  
+ 
+ALTER TABLE Computador ADD CONSTRAINT Computador_fk0 FOREIGN KEY (ID_Usuario) REFERENCES Usuario(ID);
+ 
+ALTER TABLE Telefone ADD CONSTRAINT Telefone_fk0 FOREIGN KEY (ID_Usuario) REFERENCES Usuario(ID);
+
+########################################################  
+#---------------- Populando Petroanalysis --------------  
+######################################################## 
+
+INSERT INTO `Petroanalysis` (`ID`, `Status`, `Static`, `Dynamic`, `Pressao`, `Viscos`) VALUES (NULL, 'ON', '25', '22', '150', '250');
+INSERT INTO `Petroanalysis` (`ID`, `Status`, `Static`, `Dynamic`, `Pressao`, `Viscos`) VALUES (NULL, 'ON', '22', '12', '75', '140');
+INSERT INTO `Petroanalysis` (`ID`, `Status`, `Static`, `Dynamic`, `Pressao`, `Viscos`) VALUES (NULL, 'OFF', '0', '0', '0', '0');
+INSERT INTO `Petroanalysis` (`ID`, `Status`, `Static`, `Dynamic`, `Pressao`, `Viscos`) VALUES (NULL, 'ON', '40', '27', '178', '281');
+INSERT INTO `Petroanalysis` (`ID`, `Status`, `Static`, `Dynamic`, `Pressao`, `Viscos`) VALUES (NULL, 'ON', '50', '40', '573', '178');
+INSERT INTO `Petroanalysis` (`ID`, `Status`, `Static`, `Dynamic`, `Pressao`, `Viscos`) VALUES (NULL, 'OFF', '0', '0', '0', '0');
+  
+########################################################  
+#----------------- Inserção de Usuarios ----------------  
+########################################################  
+START TRANSACTION;  
+    INSERT INTO Usuario(Nome,CPF,Email)   
+        VALUES ('Icaro','11122233396','icaro.lima@ee.ufcg.edu.br');
+	SELECT @a:=ID FROM Usuario ORDER BY ID DESC LIMIT 1;      
+    INSERT INTO Telefone(Telefone,ID_Usuario)   
+        VALUES ('123456789', @a);  
+COMMIT;
+START TRANSACTION;  
+    INSERT INTO Usuario(Nome,CPF,Email)   
+        VALUES ('José','16061522037','jose@dee.ufcg.edu.br');
+	SELECT @a:=ID FROM Usuario ORDER BY ID DESC LIMIT 1;      
+    INSERT INTO Telefone(Telefone,ID_Usuario)   
+        VALUES ('8321011135', @a);      
+    INSERT INTO Telefone(Telefone,ID_Usuario)   
+        VALUES ('40028922', @a);  
+COMMIT;
+START TRANSACTION;  
+    INSERT INTO Usuario(Nome,CPF,Email)   
+        VALUES ('Homer Simpson','07338549079','homer@bardomoe.com.br');
+	SELECT @a:=ID FROM Usuario ORDER BY ID DESC LIMIT 1;      
+    INSERT INTO Telefone(Telefone,ID_Usuario)   
+        VALUES ('1478926911', @a);  
+COMMIT;
+START TRANSACTION;  
+    INSERT INTO Usuario(Nome,CPF,Email)   
+        VALUES ('Lisa Simpson','63905153084','lisa@escoladespringfield.com');
+	SELECT @a:=ID FROM Usuario ORDER BY ID DESC LIMIT 1;      
+    INSERT INTO Telefone(Telefone,ID_Usuario)   
+        VALUES ('4785236981', @a);  
+COMMIT;
+START TRANSACTION;  
+    INSERT INTO Usuario(Nome,CPF,Email)   
+        VALUES ('Moe Demidov','43565957000','moe@tabernadomoe.com.br');
+	SELECT @a:=ID FROM Usuario ORDER BY ID DESC LIMIT 1;      
+    INSERT INTO Telefone(Telefone,ID_Usuario)   
+        VALUES ('1020305004', @a);  
+COMMIT;
+ 
+ 
+########################################################  
+#------------ Inserção de Computadores--------------  
+########################################################  
+  
+START TRANSACTION;  
+    INSERT INTO Computador(ID_Usuario,Nome,Status,Senha)   
+        VALUES ('2','PC001','ON','1234');    
+COMMIT;
+START TRANSACTION;  
+    INSERT INTO Computador(ID_Usuario,Nome,Status,Senha)   
+        VALUES ('2','PC002','OFF','1234');    
+COMMIT; 
+START TRANSACTION;  
+    INSERT INTO Computador(ID_Usuario,Nome,Status,Senha)   
+        VALUES ('3','PC003','ON','1234');    
+COMMIT; 
+START TRANSACTION;  
+    INSERT INTO Computador(ID_Usuario,Nome,Status,Senha)   
+        VALUES ('4','PC005','OFF','1234');    
+COMMIT; 
+START TRANSACTION;  
+    INSERT INTO Computador(ID_Usuario,Nome,Status,Senha)   
+        VALUES ('5','PC006','ON','1234');    
+COMMIT;  
+START TRANSACTION;  
+    INSERT INTO Computador(ID_Usuario,Nome,Status,Senha)   
+        VALUES ('1','PC008','ON','1234');    
+COMMIT;   
+
+# -- CONSULTA 1 --  
+  
+# Quais computadores com o status "ligado" o usuário José tem acesso?
+  
+SELECT Nome FROM Computador WHERE Status = 'ON' AND ID_Usuario = '3';
+
+SELECT Nome FROM Computador WHERE Status = 'ON' AND ID_Usuario in (SELECT ID FROM Usuario WHERE Nome LIKE '%José%');
+ 
+# -- CONSULTA 2 --  
+  
+# Quais os telefone celular do usuário José?
+# Pesquisar por nome
+SELECT Telefone FROM Telefone WHERE ID_Usuario in (SELECT ID FROM Usuario WHERE Nome LIKE '%José%') ;
+# Pesquisar por ID
+SELECT Telefone FROM Telefone WHERE ID_Usuario = '3';
+ 
+ 
+# -- CONSULTA 3 -- 
+ 
+# Qual o nome do usuário que o computador está desligado?
+ 
+SELECT Nome from Usuario WHERE ID in (SELECT ID_Usuario FROM Computador WHERE Status = "OFF");
